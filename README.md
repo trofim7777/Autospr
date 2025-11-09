@@ -21,8 +21,8 @@
 
 ```bash
 # 1) Клонирование
-git clone https://github.com/<your>/<repo>.git
-cd <repo>
+git clone https://github.com/trofim7777/Autospr.git
+cd Autospr
 
 # 2) Виртуальное окружение
 python -m venv .venv
