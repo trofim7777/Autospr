@@ -44,6 +44,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # === наше избранное (бейдж в шапке) ===
+                'catalog.context_processors.favorites_count',
             ],
         },
     },
@@ -65,8 +67,9 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # для разработки
+STATICFILES_DIRS = [BASE_DIR / 'static']   # для разработки
 STATIC_ROOT = BASE_DIR / 'staticfiles'     # для collectstatic
+
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -75,7 +78,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-
 
 # В проде (DEBUG=False) можно включить сжатую статику WhiteNoise:
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

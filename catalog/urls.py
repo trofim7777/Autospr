@@ -13,4 +13,11 @@ urlpatterns = [
     path('compare/remove/<int:pk>/', views.remove_from_compare, name='remove_from_compare'),
 
     path('ajax/models/', views.load_models, name='ajax_load_models'),
+
+    # Избранное
+    path('favorites/', views.FavoriteListView.as_view(), name='favorite_list'),
+    path('favorites/toggle/<int:pk>/', views.favorite_toggle, name='favorite_toggle'),
+    # алиас на тот же вью — чтобы шаблоны, где используется 'fav_toggle', тоже работали
+    path('fav/toggle/<int:pk>/', views.favorite_toggle, name='fav_toggle'),
+    path('toggle_favorite/<int:pk>/', views.favorite_toggle, name='toggle_favorite'),
 ]

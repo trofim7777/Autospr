@@ -50,6 +50,16 @@
         </a>
       {% endwith %}
 
+      {# Кнопка "Избранное" с бейджем (берётся из контекст-процессора favorites_count) #}
+      <a class="btn btn-outline-secondary position-relative" href="{% url 'favorite_list' %}">
+        <i class="bi bi-heart"></i> Избранное
+        {% if favorites_count %}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ favorites_count }}
+          </span>
+        {% endif %}
+      </a>
+
       {# Переключатель темы #}
       <div class="form-check form-switch ms-2 d-flex align-items-center">
         <input class="form-check-input" type="checkbox" role="switch" id="themeSwitch" />
