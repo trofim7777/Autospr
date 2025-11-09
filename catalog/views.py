@@ -175,4 +175,3 @@ class FavoriteListView(LoginRequiredMixin, ListView):
         ctx['fav_ids'] = ids
         ctx['favorite_ids'] = ids
         return ctx
-git add -A
