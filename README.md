@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 # 4) Миграции и (опц.) тестовые данные
 python manage.py migrate
-python manage.py loaddata seed.json  # опционально
+python manage.py loaddata catalog/fixtures/seed.json   # опционально
 
 # 5) Суперпользователь (опционально)
 python manage.py createsuperuser
