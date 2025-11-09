@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+
+# Venv
+.venv/
+venv/
+env/
+
+# Django
+db.sqlite3
+staticfiles/
+*.sqlite3
+
+# MEDIA: игнорим всё, КРОМЕ папки с картинками автомобилей
+/media/*
+!/media/cars/
+!/media/cars/**
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

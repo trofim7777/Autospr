@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static formatting %}
+{% block title %}Подбор автомобилей{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12 col-lg-3">
+    <div class="card sticky-top" style="top: 1rem;">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Фильтр</h5>
+        <form method="get">
+          <div class="mb-2">
+            <label class="form-label">Марка</label>
+            {{ filter.form.brand }}
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Модель</label>
+            {{ filter.form.model }}
+          </div>
+          <div class="row g-2">
+            <div class="col">
+              <label class="form-label">Год от</label>
+              {{ filter.form.year_min }}
+            </div>
+            <div class="col">
+              <label class="form-label">Год до</label>
+              {{ filter.form.year_max }}
+            </div>
+          </div>
+          <div class="row g-2">
+            <div class="col">
+              <label class="form-label">Цена от</label>
+              {{ filter.form.price_min }}
+            </div>
+            <div class="col">
+              <label class="form-label">Цена до</label>
+              {{ filter.form.price_max }}
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Двигатель</label>
+            {{ filter.form.engine_type }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Коробка</label>
+            {{ filter.form.transmission }}
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary w-100" type="submit">
+              <i class="bi bi-funnel"></i> Применить
+            </button>
+            <a class="btn btn-outline-secondary" href="{% url 'car_list' %}">Сброс</a>
+          </div>
+
+          <hr>
+          <label class="form-label">Сортировка</label>
+          <select class="form-select" name="sort" onchange="this.form.submit()">
+            <option value="">По умолчанию</option>
+            <option value="price" {% if current_sort == 'price' %}selected{% endif %}>Цена ↑</option>
+            <option value="-price" {% if current_sort == '-price' %}selected{% endif %}>Цена ↓</option>
+            <option value="year" {% if current_sort == 'year' %}selected{% endif %}>Год ↑</option>
+            <option value="-year" {% if current_sort == '-year' %}selected{% endif %}>Год ↓</option>
+          </select>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-9">
+    {% if cars %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {% for car in cars %}
+        <div class="col" data-aos="fade-up">
+          <div class="card car-card h-100">
+            {% if car.image %}
+              <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car }}">
+            {% else %}
+              <img src="{% static 'img/placeholder_car.jpg' %}" class="card-img-top" alt="Нет фото">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+              <h6 class="card-title">{{ car.brand }} {{ car.model.name }}</h6>
+              <div class="text-secondary small mb-2">
+                {{ car.year }} · {{ car.get_engine_type_display }} · {{ car.get_transmission_display }}
+              </div>
+              <div class="fw-bold mb-3">{{ car.price|spaced_money }} ₽</div>
+
+              <div class="mt-auto d-flex gap-2">
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'car_detail' car.pk %}">
+                  <i class="bi bi-search"></i>
+                </a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'add_to_compare' car.pk %}">
+                  <i class="bi bi-columns-gap"></i>
+                </a>
+
+                {% if request.user.is_staff or perms.catalog.change_car %}
+                  <a class="btn btn-sm btn-outline-warning" href="{% url 'car_edit' car.pk %}">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                {% endif %}
+
+                {% if request.user.is_staff or perms.catalog.delete_car %}
+                  <a class="btn btn-sm btn-outline-danger"
+                     href="{% url 'car_delete' car.pk %}"
+                     onclick="return confirm('Удалить авто?')">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                {% endif %}
+              </div>
+
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if is_paginated %}
+      <nav class="mt-4">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|cut:'page='|cut:'&' }}&{% endif %}page={{ page_obj.previous_page_number }}">Назад</a></li>
+          {% endif %}
+          <li class="page-item disabled"><span class="page-link">Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode|cut:'page='|cut:'&' }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    {% else %}
+      <div class="alert alert-info">Ничего не найдено — измените условия фильтра.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Динамическая подгрузка моделей при смене марки (для формы фильтра)
+  (function(){
+    const brandSelect = document.querySelector('[name="brand"]');
+    const modelSelect = document.querySelector('[name="model"]');
+    if(!brandSelect || !modelSelect) return;
+    brandSelect.addEventListener('change', async function() {
+      const brandId = this.value;
+      modelSelect.innerHTML = '<option>Загрузка...</option>';
+      const resp = await fetch("{% url 'ajax_load_models' %}?brand_id=" + brandId);
+      const data = await resp.json();
+      modelSelect.innerHTML = '<option value="">---------</option>';
+      data.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.name;
+        modelSelect.appendChild(opt);
+      });
+    });
+  })();
+</script>
+{% endblock %}

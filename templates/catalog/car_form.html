@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}{{ view.object|yesno:"Редактирование,Добавление" }} авто{% endblock %}
+{% block content %}
+<h4 class="mb-3">{{ view.object|yesno:"Редактирование,Добавление" }} автомобиля</h4>
+<form method="post" enctype="multipart/form-data" class="card p-3">
+  {% csrf_token %}
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Марка</label>
+      {{ form.brand }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Модель</label>
+      {{ form.model }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Год</label>
+      {{ form.year }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Двигатель</label>
+      {{ form.engine_type }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Коробка</label>
+      {{ form.transmission }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Цена</label>
+      {{ form.price }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Фото</label>
+      {{ form.image }}
+    </div>
+    <div class="col-12">
+      <label class="form-label">Описание</label>
+      {{ form.description }}
+    </div>
+  </div>
+  <div class="mt-3 d-flex gap-2">
+    <button class="btn btn-primary" type="submit"><i class="bi bi-check2"></i> Сохранить</button>
+    <a class="btn btn-outline-secondary" href="{% url 'car_list' %}">Отмена</a>
+  </div>
+</form>
+
+{% block extra_js %}
+<script>
+// AJAX обновление "Модель" при смене "Марка" в форме
+(function(){
+  const brandSelect = document.getElementById('id_brand');
+  const modelSelect = document.getElementById('id_model');
+  if(!brandSelect || !modelSelect) return;
+  brandSelect.addEventListener('change', async function() {
+    const brandId = this.value;
+    modelSelect.innerHTML = '<option>Загрузка...</option>';
+    const resp = await fetch("{% url 'ajax_load_models' %}?brand_id=" + brandId);
+    const data = await resp.json();
+    modelSelect.innerHTML = '';
+    data.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.name;
+      modelSelect.appendChild(opt);
+    });
+  });
+})();
+</script>
+{% endblock %}
+{% endblock %}

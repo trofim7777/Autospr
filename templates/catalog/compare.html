@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load formatting %}
+{% block title %}Сравнение{% endblock %}
+{% block content %}
+<h4 class="mb-3">Сравнение автомобилей</h4>
+{% if cars %}
+<div class="table-responsive">
+  <table class="table align-middle table-bordered bg-white">
+    <thead>
+      <tr>
+        <th>Параметр</th>
+        {% for c in cars %}
+        <th class="text-center">
+          {{ c.brand }} {{ c.model.name }}<br>
+          <span class="text-secondary small">{{ c.year }}</span><br>
+          <a class="btn btn-sm btn-outline-danger mt-1" href="{% url 'remove_from_compare' c.pk %}">Убрать</a>
+        </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Фото</th>
+        {% for c in cars %}
+        <td class="text-center">
+          {% if c.image %}
+          <img src="{{ c.image.url }}" style="max-width:150px;" class="rounded shadow-sm" alt="{{ c }}">
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <th>Двигатель</th>{% for c in cars %}<td>{{ c.get_engine_type_display }}</td>{% endfor %}
+      </tr>
+      <tr>
+        <th>Коробка</th>{% for c in cars %}<td>{{ c.get_transmission_display }}</td>{% endfor %}
+      </tr>
+      <tr>
+        <th>Цена</th>{% for c in cars %}<td class="fw-bold">{{ c.price|spaced_money }} ₽</td>{% endfor %}
+      </tr>
+      <tr>
+        <th>Описание</th>{% for c in cars %}<td class="text-secondary small">{{ c.description|default:"—" }}</td>{% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">Список сравнения пуст. Добавьте автомобили из каталога.</div>
+{% endif %}
+{% endblock %}

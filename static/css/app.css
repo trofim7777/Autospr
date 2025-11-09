@@ -1,0 +1,8 @@
+/* Легкий ховер у карточек */
+.car-card {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.car-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
